@@ -42,11 +42,37 @@
     		<span matLine>{{comment.rating}} Stars</span>
     		<span matLine>-- {{comment.author}} {{comment.date | date}}</span>
     	</mat-list-item>
+
+      <mat-list-item *ngIf="commentPreview">
+        <span matLine>{{commentPreview.comment}}</span>
+        <span matLine>{{commentPreview.rating}} Stars</span>
+        <span matLine>-- {{commentPreview.author}} {{commentPreview.date | date}}</span>
+      </mat-list-item>
     </mat-list>
+
+    <form novalidate [formGroup]="commentForm" #cForm="ngForm" (ngSubmit)="onSubmitCommentForm()">
+      <mat-form-field class="full-width">
+        <input matInput type="text" formControlName="author" placeholder="Name" required>
+        <mat-error *ngIf="formErrors.author">
+          {{formErrors.author}}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-slider thumbLabel min="1" max="5" tickInterval="1" step="1" formControlName="rating"></mat-slider>
+
+      <mat-form-field class="full-width">
+        <textarea matInput formControlName="comment" placeholder="Your Comment" rows="12" required></textarea>
+        <mat-error *ngIf="formErrors.comment">
+          {{formErrors.comment}}
+        </mat-error>
+      </mat-form-field>
+
+      <button type="submit" mat-button class="background-primary text-floral-white"
+              [disabled]="commentForm.invalid">Submit</button>
+    </form>
   </div>
 
   <div fxFlex [hidden]="dish">
     <mat-spinner></mat-spinner> <h4>Loading... Please Wait!</h4>
   </div>
-
 </div>
