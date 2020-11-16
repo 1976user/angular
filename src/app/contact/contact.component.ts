@@ -3,7 +3,11 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
 
-import { flyInOut } from '../animations/app.animations';
+import { FeedbackService } from '../services/feedback.service';
+
+import { flyInOut, expand } from '../animations/app.animations';
+
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-contact',
@@ -14,7 +18,8 @@ import { flyInOut } from '../animations/app.animations';
     'style': 'display: block'
   },
   animations: [
-    flyInOut()
+    flyInOut(),
+    expand()
   ]
 })
 export class ContactComponent implements OnInit {
@@ -22,6 +27,8 @@ export class ContactComponent implements OnInit {
   feedbackForm: FormGroup;
   feedback: Feedback;
   contactType = ContactType;
+
+  submittingState: string = "";
 
   @ViewChild('fform') feedbackFormDirective;
 
@@ -53,7 +60,9 @@ export class ContactComponent implements OnInit {
     },
   };
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private feedbackService: FeedbackService) {
   	this.createForm();
   }
 
@@ -104,8 +113,19 @@ export class ContactComponent implements OnInit {
   }
 
   onSubmit() {
-    this.feedback = this.feedbackForm.value;
-    console.log(this.feedback);
+    this.submittingState = "BeginSubmit";
+    const feedback = this.feedbackForm.value;
+
+    this.feedbackService.submitFeedback(feedback)
+      .subscribe(this.afterSubmit.bind(this));
+  }
+
+  private afterSubmit(feedback: Feedback) {
+    this.submittingState = "AfterSubmit";
+      
+    timer(5000).subscribe(this.onSubmitProcessingCompleted.bind(this));
+
+    this.feedback = feedback;
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
@@ -115,7 +135,10 @@ export class ContactComponent implements OnInit {
       contacttype: 'None',
       message: ''
     });
-
     this.feedbackFormDirective.resetForm();
+  }
+
+  private onSubmitProcessingCompleted() {
+    this.submittingState = "";
   }
 }

@@ -36,11 +36,10 @@
     </div>
   </div>
 
-  <div fxFlex fxFlexOffset="20px" class="form-size">
+  <div fxFlex fxFlexOffset="20px" class="form-size" [ngSwitch]="submittingState">
     <h3>Send us your Feedback</h3>
-    <p>{{ feedbackForm.value | json }} {{ feedbackForm.status | json }}</p>
 
-    <form novalidate [formGroup]="feedbackForm" #fform="ngForm" (ngSubmit)="onSubmit()">
+    <form novalidate [formGroup]="feedbackForm" #fform="ngForm" (ngSubmit)="onSubmit()" *ngSwitchCase="''">
       <p>
         <mat-form-field class="half-width">
           <input matInput formControlName="firstname" placeholder="First Name" type="text" required>
@@ -89,5 +88,20 @@
       <button type="submit" mat-button class="background-primary text-floral-white"
               [disabled]="feedbackForm.invalid">Submit</button>
     </form>
+
+    <div [@expand] *ngSwitchCase="'BeginSubmit'">
+      <h3>Submitting Form</h3>
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div [@expand] *ngSwitchCase="'AfterSubmit'">
+      <div>First Name: {{feedback.firstname}}</div>
+      <div>Last Name: {{feedback.lastname}}</div>
+      <div>Tel. Number: {{feedback.telnum}}</div>
+      <div>Email: {{feedback.email}}</div>
+      <div>Contact You?: {{feedback.agree}}</div>
+      <div>How?: {{feedback.contacttype}}</div>
+      <div>Feedback: {{feedback.message}}</div>
+    </div>
   </div>
 </div>
